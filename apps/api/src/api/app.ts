@@ -4,6 +4,7 @@ import express from 'express';
 import type { JWTVerifyGetKey } from 'jose';
 import { clinicas, membresias, type Database } from '@odontotrust/db';
 import type { Env } from '../config/env';
+import { pacientesRouter } from '../pacientes/routes';
 import { authenticate, requirePermission, resolveClinica } from './auth';
 import { errorHandler } from './errors';
 
@@ -61,6 +62,8 @@ export function createApp({ env, database, jwks }: AppDeps) {
       next(err);
     }
   });
+
+  app.use('/api/v1/pacientes', ...tenant, pacientesRouter(database));
 
   app.use(errorHandler);
   return app;

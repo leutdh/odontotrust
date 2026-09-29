@@ -7,6 +7,9 @@ try {
   // no root .env
 }
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  // Workspace packages ship TypeScript sources.
+  transpilePackages: ['@odontotrust/shared'],
+};
 
 export default nextConfig;

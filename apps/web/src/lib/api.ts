@@ -1,6 +1,7 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
+import type { Rol } from '@odontotrust/shared';
 import { env } from './env';
 import { createSupabaseServer } from './supabase/server';
 
@@ -8,7 +9,7 @@ export const CLINICA_COOKIE = 'clinica_id';
 
 export type Me = {
   userId: string;
-  clinicas: { clinicaId: string; rol: string; nombre: string }[];
+  clinicas: { clinicaId: string; rol: Rol; nombre: string }[];
 };
 
 async function accessToken(): Promise<string | null> {
@@ -34,8 +35,8 @@ export const getContext = cache(async () => {
   if (!res?.ok) return null;
   const me = (await res.json()) as Me;
   const chosen = (await cookies()).get(CLINICA_COOKIE)?.value;
-  const clinicaId =
-    me.clinicas.find((c) => c.clinicaId === chosen)?.clinicaId ??
-    (me.clinicas.length === 1 ? me.clinicas[0]!.clinicaId : null);
-  return { me, clinicaId };
+  const clinica =
+    me.clinicas.find((c) => c.clinicaId === chosen) ??
+    (me.clinicas.length === 1 ? me.clinicas[0]! : null);
+  return { me, clinicaId: clinica?.clinicaId ?? null, rol: clinica?.rol ?? null };
 });

@@ -7,6 +7,7 @@ export const PERMISSIONS = {
   'usuarios:manage': ['admin'],
   'pacientes:read': ['admin', 'profesional', 'recepcion'],
   'pacientes:write': ['admin', 'profesional', 'recepcion'],
+  'pacientes:delete': ['admin', 'profesional'],
   // Clinical fields of a patient (antecedentes, alergias) and evoluciones: no recepcion.
   'clinico:read': ['admin', 'profesional'],
   'clinico:write': ['admin', 'profesional'],

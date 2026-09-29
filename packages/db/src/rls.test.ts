@@ -34,6 +34,7 @@ describe.skipIf(!url)('tenant isolation (RLS)', () => {
       insert into sedes (id, clinica_id, nombre) values ('${sede}', '${id}', 'Sede');
       insert into sillones (id, clinica_id, sede_id, nombre) values ('${sillon}', '${id}', '${sede}', 'S1');
       insert into pacientes (id, clinica_id, nombre, apellido, dni) values ('${pac}', '${id}', 'Test', 'Paciente', '${Math.floor(Math.random() * 1e8)}');
+      insert into coberturas (clinica_id, paciente_id, obra_social) values ('${id}', '${pac}', 'OSDE');
       insert into tipos_tratamiento (id, clinica_id, nombre, duracion_minutos) values ('${tipo}', '${id}', 'Consulta', 30);
       insert into turnos (clinica_id, paciente_id, profesional_id, sillon_id, tipo_tratamiento_id, inicio, fin)
         values ('${id}', '${pac}', '${prof}', '${sillon}', '${tipo}', '2030-01-01T10:00Z', '2030-01-01T10:30Z');
@@ -56,6 +57,7 @@ describe.skipIf(!url)('tenant isolation (RLS)', () => {
       delete from sillones where clinica_id in ('${A}','${B}');
       delete from sedes where clinica_id in ('${A}','${B}');
       delete from profesionales where clinica_id in ('${A}','${B}');
+      delete from coberturas where clinica_id in ('${A}','${B}');
       delete from pacientes where clinica_id in ('${A}','${B}');
       delete from tipos_tratamiento where clinica_id in ('${A}','${B}');
       delete from membresias where clinica_id in ('${A}','${B}');

@@ -15,6 +15,20 @@
       "when": 1790695115428,
       "tag": "0001_rls_y_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790702752704,
+      "tag": "0002_coberturas",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790702755598,
+      "tag": "0003_rls_coberturas",
+      "breakpoints": true
     }
   ]
 }

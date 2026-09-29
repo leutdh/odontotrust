@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { apiFetch, getContext } from '@/lib/api';
-import { logout, selectClinica } from './actions';
+import { selectClinica } from '../actions';
 
 export default async function Home() {
   const ctx = await getContext();
@@ -9,7 +10,7 @@ export default async function Home() {
   // Several clinics and none chosen yet: show the selector.
   if (!ctx.clinicaId) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-4 px-4">
+      <main className="mx-auto flex w-full max-w-sm flex-col gap-4 py-10">
         <h1 className="text-2xl font-semibold">Elegí una clínica</h1>
         {ctx.me.clinicas.map((c) => (
           <form key={c.clinicaId} action={selectClinica}>
@@ -23,21 +24,22 @@ export default async function Home() {
     );
   }
 
-  const membership = ctx.me.clinicas.find((c) => c.clinicaId === ctx.clinicaId);
   const res = await apiFetch('/clinica', {}, ctx.clinicaId);
-  const clinica = res?.ok ? ((await res.json()) as { nombre: string; zonaHoraria: string }) : null;
+  const clinica = res?.ok ? ((await res.json()) as { nombre: string }) : null;
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-4 px-4 py-10">
-      <h1 className="text-2xl font-semibold">{clinica?.nombre ?? 'Clínica'}</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">
-        Sesión iniciada como <strong>{membership?.rol}</strong>. Conexión front → Supabase Auth → API OK.
-      </p>
-      <form action={logout}>
-        <button className="rounded-md border border-neutral-300 px-4 py-2 dark:border-neutral-700">
-          Salir
-        </button>
-      </form>
+    <main className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold">{clinica?.nombre ?? 'Clínica'}</h1>
+        <p className="text-sm text-neutral-500">Sesión como {ctx.rol}</p>
+      </div>
+      <Link
+        href="/pacientes"
+        className="rounded-lg border border-neutral-200 p-5 text-lg font-medium dark:border-neutral-800"
+      >
+        Pacientes
+        <span className="block text-sm font-normal text-neutral-500">Buscar, ver fichas y cargar nuevos</span>
+      </Link>
     </main>
   );
 }

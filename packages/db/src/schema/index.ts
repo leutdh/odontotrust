@@ -1,5 +1,6 @@
 export * from './audit-log';
 export * from './clinicas';
+export * from './coberturas';
 export * from './membresias';
 export * from './pacientes';
 export * from './profesionales';
@@ -14,6 +15,7 @@ export const TENANT_TABLES = [
   'sedes',
   'sillones',
   'pacientes',
+  'coberturas',
   'tipos_tratamiento',
   'turnos',
   'audit_log',
