@@ -1,0 +1,28 @@
+{
+  "name": "@odontotrust/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/api/index.ts",
+    "dev:worker": "tsx watch --env-file=../../.env src/worker/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@odontotrust/shared": "workspace:*",
+    "bullmq": "^5.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.0.0",
+    "ioredis": "^5.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.0"
+  }
+}
