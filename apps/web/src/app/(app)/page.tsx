@@ -34,6 +34,13 @@ export default async function Home() {
         <p className="text-sm text-neutral-500">Sesión como {ctx.rol}</p>
       </div>
       <Link
+        href="/agenda"
+        className="rounded-lg border border-neutral-200 p-5 text-lg font-medium dark:border-neutral-800"
+      >
+        Agenda
+        <span className="block text-sm font-normal text-neutral-500">Turnos del día y de la semana</span>
+      </Link>
+      <Link
         href="/pacientes"
         className="rounded-lg border border-neutral-200 p-5 text-lg font-medium dark:border-neutral-800"
       >

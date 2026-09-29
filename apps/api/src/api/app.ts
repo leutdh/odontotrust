@@ -4,7 +4,10 @@ import express from 'express';
 import type { JWTVerifyGetKey } from 'jose';
 import { clinicas, membresias, type Database } from '@odontotrust/db';
 import type { Env } from '../config/env';
+import { bloqueosRouter } from '../bloqueos/routes';
+import { catalogoRouters } from '../catalogo/routes';
 import { pacientesRouter } from '../pacientes/routes';
+import { turnosRouter } from '../turnos/routes';
 import { authenticate, requirePermission, resolveClinica } from './auth';
 import { errorHandler } from './errors';
 
@@ -64,6 +67,12 @@ export function createApp({ env, database, jwks }: AppDeps) {
   });
 
   app.use('/api/v1/pacientes', ...tenant, pacientesRouter(database));
+  app.use('/api/v1/turnos', ...tenant, turnosRouter(database));
+  app.use('/api/v1/bloqueos', ...tenant, bloqueosRouter(database));
+  const catalogo = catalogoRouters(database);
+  app.use('/api/v1/tipos-tratamiento', ...tenant, catalogo.tipos);
+  app.use('/api/v1/sillones', ...tenant, catalogo.sillones);
+  app.use('/api/v1/profesionales', ...tenant, catalogo.profesionales);
 
   app.use(errorHandler);
   return app;

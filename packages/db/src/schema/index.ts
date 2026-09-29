@@ -1,4 +1,5 @@
 export * from './audit-log';
+export * from './bloqueos';
 export * from './clinicas';
 export * from './coberturas';
 export * from './membresias';
@@ -18,5 +19,6 @@ export const TENANT_TABLES = [
   'coberturas',
   'tipos_tratamiento',
   'turnos',
+  'bloqueos',
   'audit_log',
 ] as const;

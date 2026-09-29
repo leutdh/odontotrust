@@ -1,17 +1,8 @@
 import { z } from 'zod';
+import { required, text } from './zod-helpers';
 
 /** Clinical fields of a patient: never exposed to (nor writable by) roles without `clinico:*`. */
 export const CLINICAL_FIELDS = ['antecedentes', 'alergias'] as const;
-
-// Forms send '' for empty inputs: normalize to null.
-const text = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .transform((v) => (v === '' ? null : v))
-    .nullable();
-const required = (max: number) => z.string().trim().min(1, 'Requerido').max(max);
 
 const dni = z
   .string()

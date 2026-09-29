@@ -29,6 +29,20 @@
       "when": 1790702755598,
       "tag": "0003_rls_coberturas",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790705661470,
+      "tag": "0004_bloqueos",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790705664576,
+      "tag": "0005_rls_bloqueos",
+      "breakpoints": true
     }
   ]
 }

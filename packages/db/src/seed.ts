@@ -51,6 +51,15 @@ await run(sql`insert into profesionales (clinica_id, membresia_id, nombre, espec
   select ${c}::uuid, m.id, 'Dra. Demo', 'Odontología general', '#0ea5e9'
   from membresias m where m.clinica_id = ${c} and m.user_id = ${profId}
   and not exists (select 1 from profesionales p where p.clinica_id = ${c})`);
+// Monday-Friday, morning and afternoon (only if the demo professional has no hours yet).
+await run(sql`update profesionales set horarios = ${JSON.stringify(
+  Object.fromEntries(['1', '2', '3', '4', '5'].map((d) => [d, [['09:00', '13:00'], ['14:00', '18:00']]])),
+)}::jsonb where clinica_id = ${c} and horarios = '{}'::jsonb`);
+await run(sql`insert into sedes (clinica_id, nombre)
+  select ${c}::uuid, 'Sede principal' where not exists (select 1 from sedes where clinica_id = ${c})`);
+await run(sql`insert into sillones (clinica_id, sede_id, nombre)
+  select ${c}::uuid, s.id, 'Sillón 1' from sedes s where s.clinica_id = ${c}
+  and not exists (select 1 from sillones x where x.clinica_id = ${c}) limit 1`);
 await run(sql`insert into tipos_tratamiento (clinica_id, nombre, duracion_minutos)
   select ${c}::uuid, t.nombre, t.dur from (values ('Consulta', 30), ('Limpieza', 45), ('Endodoncia', 90)) as t(nombre, dur)
   where not exists (select 1 from tipos_tratamiento x where x.clinica_id = ${c})`);
