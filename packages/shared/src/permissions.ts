@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   'turnos:read': ['admin', 'profesional', 'recepcion'],
   'turnos:write': ['admin', 'profesional', 'recepcion'],
   'bloqueos:write': ['admin', 'profesional', 'recepcion'],
+  'recordatorios:send': ['admin', 'profesional', 'recepcion'],
   // Treatment types, chairs, professionals and their working hours.
   'agenda:config': ['admin'],
 } as const satisfies Record<string, readonly Rol[]>;

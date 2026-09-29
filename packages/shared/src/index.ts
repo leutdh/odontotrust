@@ -3,5 +3,7 @@ export * from './constants';
 export * from './env';
 export * from './pacientes';
 export * from './permissions';
+export * from './phone';
+export * from './recordatorios';
 export * from './schemas';
 export * from './time';

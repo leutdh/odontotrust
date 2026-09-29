@@ -90,7 +90,7 @@ export function PacienteForm({ rol, paciente }: { rol: Rol; paciente?: PacienteD
         <Field label="Fecha de nacimiento">
           <input name="fechaNacimiento" type="date" defaultValue={p?.fechaNacimiento ?? ''} className={inputClass} />
         </Field>
-        <Field label="Celular (WhatsApp)">
+        <Field label="Celular (WhatsApp, con código de área)">
           <input
             name="celular"
             type="tel"

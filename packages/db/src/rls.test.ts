@@ -38,6 +38,7 @@ describe.skipIf(!url)('tenant isolation (RLS)', () => {
       insert into tipos_tratamiento (id, clinica_id, nombre, duracion_minutos) values ('${tipo}', '${id}', 'Consulta', 30);
       insert into turnos (clinica_id, paciente_id, profesional_id, sillon_id, tipo_tratamiento_id, inicio, fin)
         values ('${id}', '${pac}', '${prof}', '${sillon}', '${tipo}', '2030-01-01T10:00Z', '2030-01-01T10:30Z');
+      insert into recordatorios (clinica_id, turno_id, canal, estado) select '${id}', id, 'whatsapp_link', 'abierto' from turnos where clinica_id = '${id}' limit 1;
       insert into bloqueos (clinica_id, profesional_id, inicio, fin, motivo) values ('${id}', '${prof}', '2030-02-01T10:00Z', '2030-02-01T11:00Z', 'Almuerzo');
       insert into audit_log (clinica_id, user_id, entidad, accion) values ('${id}', '${userId}', 'pacientes', 'read');
     `));
@@ -53,6 +54,7 @@ describe.skipIf(!url)('tenant isolation (RLS)', () => {
 
   afterAll(async () => {
     await admin.db.execute(run(`
+      delete from recordatorios where clinica_id in ('${A}','${B}');
       delete from turnos where clinica_id in ('${A}','${B}');
       delete from bloqueos where clinica_id in ('${A}','${B}');
       delete from audit_log where clinica_id in ('${A}','${B}');

@@ -3,6 +3,7 @@ import type { Database } from '@odontotrust/db';
 import { rangeQuerySchema, turnoCreateSchema, turnoUpdateSchema } from '@odontotrust/shared';
 import { requirePermission } from '../api/auth';
 import { idParam, parse } from '../api/http';
+import { mountTurnoRecordatorios } from '../recordatorios/routes';
 import { createTurnosService } from './service';
 
 export function turnosRouter(database: Database) {
@@ -22,6 +23,7 @@ export function turnosRouter(database: Database) {
   router.patch('/:id', id, requirePermission('turnos:write'), async (req, res) => {
     res.json(await service.update(req.auth!, req.params.id as string, parse(turnoUpdateSchema, req.body)));
   });
+  mountTurnoRecordatorios(router, database);
 
   return router;
 }

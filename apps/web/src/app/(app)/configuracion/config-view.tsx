@@ -1,8 +1,8 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
-import type { Horarios, ProfesionalDto, TipoTratamientoDto } from '@odontotrust/shared';
+import { renderPlantilla, type Horarios, type ProfesionalDto, type TipoTratamientoDto } from '@odontotrust/shared';
 import { btnGhost, btnPrimary, inputClass } from '@/components/ui';
 import { ApiError, api } from '@/lib/api-client';
 import { useProfesionales, useSillones, useTipos } from '../agenda/queries';
@@ -285,10 +285,84 @@ function ProfesionalesSection() {
   );
 }
 
+// ---- Reminder message -------------------------------------------------------------------
+type PlantillaData = { plantilla: string; predeterminada: string; variables: string[] };
+
+const SAMPLE = {
+  paciente: 'Ana',
+  fecha: 'lunes 5 de octubre',
+  hora: '09:30',
+  profesional: 'Dra. García',
+  clinica: 'tu consultorio',
+};
+
+function PlantillaEditor({ data }: { data: PlantillaData }) {
+  const { run, error, pending } = useSave();
+  const [text, setText] = useState(data.plantilla);
+  const [saved, setSaved] = useState(false);
+  const preview = renderPlantilla(text, SAMPLE);
+  return (
+    <div className="flex flex-col gap-3">
+      <textarea
+        rows={4}
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          setSaved(false);
+        }}
+        className={inputClass}
+        aria-label="Mensaje de recordatorio"
+      />
+      <div className="flex flex-wrap gap-1.5 text-xs">
+        {data.variables.map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setText((t) => `${t} {${v}}`)}
+            className="rounded-full border border-neutral-300 px-2 py-0.5 dark:border-neutral-700"
+          >
+            {`{${v}}`}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-md bg-neutral-100 p-3 text-sm dark:bg-neutral-900">
+        <p className="mb-1 text-xs text-neutral-500">Vista previa</p>
+        {preview}
+      </div>
+      <Err msg={error} />
+      <div className="flex items-center gap-3">
+        <button
+          className={btnPrimary}
+          disabled={pending}
+          onClick={async () => {
+            setSaved(await run(() => api('/configuracion/recordatorios', { method: 'PUT', body: { plantilla: text } }), 'recordatorio-plantilla'));
+          }}
+        >
+          {pending ? 'Guardando…' : 'Guardar mensaje'}
+        </button>
+        <button className={btnGhost} type="button" onClick={() => setText(data.predeterminada)}>
+          Restaurar el predeterminado
+        </button>
+        {saved && <span className="text-sm text-green-700">Guardado</span>}
+      </div>
+    </div>
+  );
+}
+
+function RecordatorioSection() {
+  const q = useQuery({ queryKey: ['recordatorio-plantilla'], queryFn: () => api<PlantillaData>('/configuracion/recordatorios') });
+  return (
+    <Section title="Mensaje de recordatorio" hint="Es el texto que se prepara en WhatsApp al tocar «Enviar recordatorio» en un turno.">
+      {q.data ? <PlantillaEditor key={q.data.plantilla} data={q.data} /> : <p className="text-neutral-500">Cargando…</p>}
+    </Section>
+  );
+}
+
 export function ConfigView() {
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-2xl font-semibold">Configuración</h1>
+      <RecordatorioSection />
       <ProfesionalesSection />
       <TiposSection />
       <SillonesSection />

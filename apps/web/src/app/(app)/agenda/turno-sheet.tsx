@@ -1,10 +1,12 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   TURNO_ESTADOS,
+  type RecordatorioDto,
+  type RecordatorioLinkDto,
   type ProfesionalDto,
   type SillonDto,
   type TipoTratamientoDto,
@@ -14,6 +16,7 @@ import {
 import { Sheet } from '@/components/sheet';
 import { btnGhost, btnPrimary, inputClass } from '@/components/ui';
 import { ApiError, api } from '@/lib/api-client';
+import { formatFechaHora } from '@/lib/format';
 import { fromIso, hhmmToMin, minutesToHHMM, toIso, type DateKey } from './dates';
 import { usePacienteSearch } from './queries';
 
@@ -290,6 +293,36 @@ function TurnoDetail({
   const e = fromIso(turno.fin, tz);
   const [y, m, d] = s.dateKey.split('-');
 
+  // WhatsApp reminder (wa.me): staff opens the chat with the message ready and presses send.
+  const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
+  const recordatorios = useQuery({
+    queryKey: ['recordatorios', turno.id],
+    queryFn: () => api<RecordatorioDto[]>(`/turnos/${turno.id}/recordatorios`),
+  });
+  const last = recordatorios.data?.[0];
+  const [openedAt] = useState(() => Date.now()); // sheet-open time is precise enough to hide past turnos
+  const canRemind =
+    !['cancelado', 'atendido', 'ausente'].includes(turno.estado) && new Date(turno.inicio).getTime() > openedAt;
+
+  async function enviarRecordatorio() {
+    setPending(true);
+    setError(null);
+    setFallbackUrl(null);
+    // Open the tab synchronously (inside the click) so popup blockers allow it; navigate it later.
+    const win = window.open('', '_blank');
+    try {
+      const r = await api<RecordatorioLinkDto>(`/turnos/${turno.id}/recordatorio`, { method: 'POST' });
+      if (win) win.location.href = r.url;
+      else setFallbackUrl(r.url);
+      await qc.invalidateQueries({ queryKey: ['recordatorios', turno.id] });
+    } catch (err) {
+      win?.close();
+      setError(err instanceof ApiError ? err.message : 'No se pudo preparar el recordatorio.');
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function setEstado(estado: TurnoEstado) {
     setPending(true);
     setError(null);
@@ -328,6 +361,31 @@ function TurnoDetail({
           ))}
         </div>
       </div>
+      {canRemind && (
+        <div className="flex flex-col gap-1">
+          <button
+            disabled={pending || !turno.paciente.celular}
+            onClick={() => void enviarRecordatorio()}
+            className={`${btnGhost} self-start`}
+          >
+            Enviar recordatorio por WhatsApp
+          </button>
+          {!turno.paciente.celular && (
+            <p className="text-xs text-neutral-500">El paciente no tiene celular cargado.</p>
+          )}
+          {last && (
+            <p className="text-xs text-neutral-500">
+              Último recordatorio abierto: {formatFechaHora(last.creadoAt)}
+              {recordatorios.data && recordatorios.data.length > 1 ? ` (${recordatorios.data.length} en total)` : ''}
+            </p>
+          )}
+          {fallbackUrl && (
+            <a href={fallbackUrl} target="_blank" rel="noreferrer" className="text-sm text-sky-700 underline">
+              Abrir WhatsApp
+            </a>
+          )}
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-sm text-red-600">
           {error}
