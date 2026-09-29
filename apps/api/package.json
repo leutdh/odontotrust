@@ -10,11 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@odontotrust/db": "workspace:*",
     "@odontotrust/shared": "workspace:*",
     "bullmq": "^5.0.0",
     "cors": "^2.8.5",
+    "drizzle-orm": "^0.44.7",
     "express": "^5.0.0",
     "ioredis": "^5.4.0",
+    "jose": "^6.2.12",
     "zod": "^3.23.0"
   },
   "devDependencies": {
