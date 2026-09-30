@@ -6,6 +6,22 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Throwaway Postgres so the database tests (RLS, tenant isolation, concurrency) run in CI.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: odontotrust_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d odontotrust_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5432/odontotrust_test
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -16,4 +32,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Apply migrations to the test database
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL_MIGRATIONS: postgresql://postgres:postgres@localhost:5432/odontotrust_test
       - run: pnpm test

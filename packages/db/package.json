@@ -7,8 +7,8 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx --env-file=../../.env src/migrate.ts",
-    "db:seed": "tsx --env-file=../../.env src/seed.ts",
+    "db:migrate": "tsx --env-file-if-exists=../../.env src/migrate.ts",
+    "db:seed": "tsx --env-file-if-exists=../../.env src/seed.ts",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

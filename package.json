@@ -9,6 +9,7 @@
     "dev": "pnpm -r --parallel --filter @odontotrust/web --filter @odontotrust/api dev",
     "build": "pnpm -r build",
     "test": "vitest run",
+    "test:local": "node scripts/test-local.mjs",
     "lint": "eslint . && pnpm --filter @odontotrust/web lint",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write .",

@@ -1,4 +1,4 @@
-# Solo Redis para desarrollo local (la base es Supabase).
+# Servicios locales de desarrollo. La base de desarrollo real es Supabase.
 services:
   redis:
     image: redis:7-alpine
@@ -9,5 +9,24 @@ services:
       - '6379:6379'
     volumes:
       - redis-data:/data
+
+  # Postgres descartable SOLO para los tests (pnpm test:local). Vive en RAM y sin fsync:
+  # muy rápido y se borra al bajar el contenedor. Nunca guarda datos reales.
+  db:
+    image: postgres:17-alpine
+    command: postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_connections=200
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: odontotrust_test
+    ports:
+      - '54322:5432'
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d odontotrust_test']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
 volumes:
   redis-data:
