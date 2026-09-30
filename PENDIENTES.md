@@ -90,8 +90,12 @@ Presupuestos y planes de tratamiento, pagos y cuenta corriente, recetas, consent
 
 ## 5. Faltantes que no estaban en el plan de fases (detectados en el camino)
 
-- [ ] **Gestión de usuarios y membresías.** El plan dice que `admin` gestiona usuarios, pero **no hay ni API ni pantalla** para invitar usuarios, asignarles rol o desactivarlos. Hoy las membresías se crean solo con el seed o a mano en la base.
-- [ ] **Recuperación de contraseña** y cambio de contraseña desde la app.
+- [x] **Gestión de usuarios y membresías** (hecho): pantalla `/usuarios` (solo admin) para invitar con un link de un solo uso, cambiar rol, desactivar/reactivar y regenerar el link de quien no entró todavía. Siempre queda al menos un admin activo.
+  - [ ] Falta probar el flujo de punta a punta con Supabase real y en el navegador (invitar → abrir link → elegir contraseña → entrar).
+  - [ ] Envío del link por email: hay que configurar Resend (`RESEND_API_KEY` y `EMAIL_FROM` en el `.env`, con un dominio verificado). Mientras tanto el admin copia el link y lo manda por WhatsApp.
+  - [ ] Cargar `SUPABASE_SERVICE_ROLE_KEY` y `WEB_URL` en el `.env` de producción (la API los necesita para invitar).
+  - [ ] Las membresías creadas por el seed no tienen `email` guardado (se completa desde Supabase Auth al listar).
+- [ ] **Recuperación de contraseña** ("Olvidé mi contraseña" desde el login). El cambio de contraseña estando logueado ya existe ("Mi contraseña"). Necesita endpoint público, envío de email y rate limiting (Fase 7).
 - [ ] **README** con instrucciones de instalación, variables de entorno y scripts (hoy solo existe `PLAN.md`).
 - [ ] **Tests E2E con Playwright** de los 3 flujos críticos que pide la sección 9 del plan: crear turno, crear paciente, enviar recordatorio. No hay ninguno.
 - [ ] **Pantalla para consultar el audit log** (hoy se escribe pero no se puede ver).

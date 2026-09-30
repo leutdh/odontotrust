@@ -7,3 +7,4 @@ export * from './phone';
 export * from './recordatorios';
 export * from './schemas';
 export * from './time';
+export * from './usuarios';

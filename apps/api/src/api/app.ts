@@ -1,5 +1,5 @@
 import cors from 'cors';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import express from 'express';
 import type { JWTVerifyGetKey } from 'jose';
 import { clinicas, membresias, type Database } from '@odontotrust/db';
@@ -9,6 +9,9 @@ import { catalogoRouters } from '../catalogo/routes';
 import { pacientesRouter } from '../pacientes/routes';
 import { configuracionRouter } from '../recordatorios/routes';
 import { turnosRouter } from '../turnos/routes';
+import { noEmailSender } from '../usuarios/email';
+import type { AuthAdmin, EmailSender } from '../usuarios/ports';
+import { usuariosRouter } from '../usuarios/routes';
 import { authenticate, requirePermission, resolveClinica } from './auth';
 import { errorHandler } from './errors';
 
@@ -16,9 +19,13 @@ export type AppDeps = {
   env: Pick<Env, 'CORS_ALLOWED_ORIGINS' | 'SUPABASE_URL'>;
   database: Database;
   jwks: JWTVerifyGetKey;
+  // User management (optional so tests that don't need it stay simple).
+  authAdmin?: AuthAdmin | null;
+  email?: EmailSender;
+  webUrl?: string;
 };
 
-export function createApp({ env, database, jwks }: AppDeps) {
+export function createApp({ env, database, jwks, authAdmin = null, email = noEmailSender, webUrl = 'http://localhost:3000' }: AppDeps) {
   const app = express();
   app.disable('x-powered-by');
   app.use(cors({ origin: env.CORS_ALLOWED_ORIGINS.split(','), credentials: true }));
@@ -40,7 +47,8 @@ export function createApp({ env, database, jwks }: AppDeps) {
           .select({ clinicaId: membresias.clinicaId, rol: membresias.rol, nombre: clinicas.nombre })
           .from(membresias)
           .innerJoin(clinicas, eq(clinicas.id, membresias.clinicaId))
-          .where(eq(membresias.userId, userId)),
+          // Deactivated memberships must not show up (nor be selectable) in the clinic picker.
+          .where(and(eq(membresias.userId, userId), eq(membresias.activo, true))),
       );
       res.json({ userId, clinicas: rows });
     } catch (err) {
@@ -71,6 +79,7 @@ export function createApp({ env, database, jwks }: AppDeps) {
   app.use('/api/v1/turnos', ...tenant, turnosRouter(database));
   app.use('/api/v1/bloqueos', ...tenant, bloqueosRouter(database));
   app.use('/api/v1/configuracion', ...tenant, configuracionRouter(database));
+  app.use('/api/v1/usuarios', ...tenant, usuariosRouter({ database, authAdmin, email, webUrl }));
   const catalogo = catalogoRouters(database);
   app.use('/api/v1/tipos-tratamiento', ...tenant, catalogo.tipos);
   app.use('/api/v1/sillones', ...tenant, catalogo.sillones);

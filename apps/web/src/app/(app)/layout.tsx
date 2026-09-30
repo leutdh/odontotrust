@@ -25,9 +25,17 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               Configuración
             </Link>
           )}
-          <form action={logout} className="ml-auto">
-            <button className="text-sm text-neutral-500">Salir</button>
-          </form>
+          {ctx?.rol && can(ctx.rol, 'usuarios:manage') && (
+            <Link href="/usuarios" className={link}>
+              Usuarios
+            </Link>
+          )}
+          <div className="ml-auto flex items-center gap-4 text-sm text-neutral-500">
+            <Link href="/establecer-contrasena">Mi contraseña</Link>
+            <form action={logout}>
+              <button>Salir</button>
+            </form>
+          </div>
         </nav>
       </header>
       <div className="mx-auto max-w-6xl px-4 py-6">{children}</div>

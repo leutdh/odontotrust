@@ -24,8 +24,10 @@ export async function proxy(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   const isLogin = request.nextUrl.pathname === '/login';
+  // Invite / password-recovery links are opened by people who are not signed in yet.
+  const isPublic = isLogin || request.nextUrl.pathname.startsWith('/auth/');
 
-  if (!data?.claims && !isLogin) {
+  if (!data?.claims && !isPublic) {
     if (request.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ code: 'unauthorized', message: 'Authentication required' }, { status: 401 });
     }

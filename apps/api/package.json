@@ -12,6 +12,7 @@
   "dependencies": {
     "@odontotrust/db": "workspace:*",
     "@odontotrust/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.117.2",
     "bullmq": "^5.0.0",
     "cors": "^2.8.5",
     "drizzle-orm": "^0.44.7",

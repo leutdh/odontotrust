@@ -13,8 +13,13 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   // JWTs are verified against the project's JWKS (derived from SUPABASE_URL).
   SUPABASE_URL: z.string().url(),
+  // Backend only. Needed for user management (invites); without it that feature answers 503.
   SUPABASE_SERVICE_ROLE_KEY: optional,
+  // Public URL of the web app: invite links point at it.
+  WEB_URL: z.preprocess(emptyToUndefined, z.string().url().default('http://localhost:3000')),
+  // Optional email delivery of invites (Resend). Without both, the admin copies the link.
   RESEND_API_KEY: optional,
+  EMAIL_FROM: optional,
   WHATSAPP_ENCRYPTION_KEY: optional,
 });
 

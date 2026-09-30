@@ -12,6 +12,10 @@ export const membresias = pgTable(
     userId: uuid('user_id').notNull(),
     rol: text('rol').notNull(),
     activo: boolean('activo').notNull().default(true),
+    // Staff contact/display data, kept here so listing users needs no call to Supabase Auth.
+    // Nullable: rows created before this column exist (the API falls back to Auth for them).
+    email: text('email'),
+    nombre: text('nombre'),
     ...timestamps(),
   },
   (t) => [
